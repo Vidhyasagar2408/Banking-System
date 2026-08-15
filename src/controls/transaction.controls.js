@@ -2,6 +2,7 @@ const transactionModel = require("../models/transaction.model");
 const ledgerModel = require("../models/ledger.model");
 const accountModel = require("../models/accounts.model");
 const emailService = require("../services/email.service");
+const { default: mongoose } = require("mongoose");
 
 /**
  * - Create a new transaction
@@ -95,7 +96,75 @@ async function createTransaction(req, res) {
     });
   }
 
-  
+  /**
+   * 5. Create transaction (PENDING)
+   */
+
+  const session = await mongoose.startSession();
+  session.startTransaction();
+
+  const transaction = await transactionModel.create(
+    {
+      fromAccount,
+      toAccount,
+      amount,
+      idemPotencyKey,
+      status: "PENDING",
+    },
+    { session },
+  );
+
+  /**
+   * 6. Create DEBIT ledger entry
+   */
+
+  const debitLedgerEntry = await ledgerModel.create({
+    account: fromAccount,
+    amount: amount,
+    transaction: transaction._id,
+    type: "DEBIT",
+  });
+
+  /**
+   * 7. Create CREDIT ledger entry
+   */
+
+  const creditLedgerEntry = await ledgerModel.create({
+    account: fromAccount,
+    amount: amount,
+    transaction: transaction._id,
+    type: "CREDIT",
+  });
+
+  /**
+   * 8. Mark transaction COMPLETED
+   */
+
+  transaction.status = "COMPLETED";
+  await transaction.save({ session });
+
+  /**
+   * 9. Commit MongoDB session
+   */
+
+  await session.commitTransaction();
+  session.endSession;
+
+  /**
+   * 10. Send email notification
+   */
+
+  await emailService.sendTransactionEmail(
+    req.user.email,
+    req.user.name,
+    amount,
+    toAccount,
+  );
+
+  res.status(201).json({
+    message: "Transaction completed successully",
+    transaction,
+  });
 }
 
 module.exports = { createTransaction };
