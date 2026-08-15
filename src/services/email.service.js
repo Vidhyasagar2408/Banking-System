@@ -57,4 +57,25 @@ async function sendAccountCreationEmail(userEmail, name) {
   await sendEmail(userEmail, subject, text, html);
 }
 
-module.exports = { sendRegistrationEmail, sendAccountCreationEmail };
+async function sendTransactionEmail(userEmail, name, amount, toAccount) {
+  const subject = "Transaction Successful!";
+  const text = `Hello ${name}, \n\nYour transaction of $${amount} to account ${toAccount} has been successfully completed. Thank you for using Banking-System. \n\nBest regards, \nThe Banking-System Team`;
+  const html = `<p>Hello ${name},</p><p>Your transaction of <strong>$${amount}</strong> to account <strong>${toAccount}</strong> has been successfully completed.</p><p>Thank you for using Banking-System.</p><p>Best regards,<br><strong>The Banking-System Team</strong></p>`;
+
+  await sendEmail(userEmail, subject, text, html);
+}
+
+async function sendTransactionFailureEmail(userEmail, name, amount, toAccount) {
+  const subject = "Transaction Failed!";
+  const text = `Hello ${name}, \n\nWe regret to inform you that your transaction of $${amount} to account ${toAccount} has failed. Please check your account balance and try again. If you continue to experience issues, please contact our support team for assistance. \n\nBest regards, \nThe Banking-System Team`;
+  const html = `<p>Hello ${name},</p><p>We regret to inform you that your transaction of <strong>$${amount}</strong> to account <strong>${toAccount}</strong> has failed.</p><p>Please check your account balance and try again. If you continue to experience issues, please contact our support team for assistance.</p><p>Best regards,<br><strong>The Banking-System Team</strong></p>`;
+
+  await sendEmail(userEmail, subject, text, html);
+}
+
+module.exports = {
+  sendRegistrationEmail,
+  sendAccountCreationEmail,
+  sendTransactionEmail,
+  sendTransactionFailureEmail,
+};
