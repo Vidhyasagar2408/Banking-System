@@ -7,4 +7,12 @@ const router = express.Router();
 
 router.post("/", authMiddleware.authMiddleware, accountControls.createAccount);
 
+router.get("/", authMiddleware.authMiddleware, accountControls.getUserAccount);
+
+router.get(
+  "/balance/:accountId",
+  authMiddleware.authMiddleware,
+  accountControls.getAccountBalance,
+);
+
 module.exports = router;

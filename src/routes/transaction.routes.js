@@ -10,6 +10,10 @@ router.post(
   transactionControls.createTransaction,
 );
 
-
+router.post(
+  "/system/initial-funds",
+  authMiddleware.authSystemUserMiddleware,
+  transactionControls.createInitialFundsTransaction,
+);
 
 module.exports = router;

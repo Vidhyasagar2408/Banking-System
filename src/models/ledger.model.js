@@ -2,7 +2,7 @@ const mongoose = require("mongoose");
 
 const ledgerSchema = new mongoose.Schema({
   account: {
-    type: String,
+    type: mongoose.Schema.Types.ObjectId,
     ref: "account",
     required: [true, "Ledger must be associated with an account"],
     index: true,
@@ -27,7 +27,7 @@ const ledgerSchema = new mongoose.Schema({
       message: "type can be either CREDIT or DEBIT",
     },
     required: [true, "Ledger type is required"],
-    immuatable: true,
+    immutable: true,
   },
 });
 
